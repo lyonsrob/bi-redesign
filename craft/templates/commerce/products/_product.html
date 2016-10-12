@@ -14,12 +14,17 @@
                     <input type="hidden" name="redirect" value="commerce/cart">
                     <input type="hidden" name="qty" value="1">
                     {{ getCsrfInput() }}
+            {% if product.getType.hasVariants %}
                     <select name="purchasableId">
-                        {% for purchasable in product.variants %}
-                            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %}
-                                    value="{{ purchasable.purchasableId }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.price|currency(cart.currency) }}</option>
-                        {% endfor %}
+                        {%- for purchasable in product.variants -%}
+                            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.description }} {{ purchasable.salePrice|currency(cart.currency) }}</option>
+                        {%- endfor -%}
                     </select>
+	    {% else %}
+                        {%- for purchasable in product.variants -%}
+		    		<input type="hidden" name="purchasableId" value="{{ purchasable.purchasableId }}" />
+                        {%- endfor -%}
+            {% endif %}
                     <input type="submit" value="{{ "Add to cart"|t }}" class="button"/>
                 </form>
 

@@ -14,15 +14,30 @@
                     <input type="hidden" name="redirect" value="commerce/cart">
                     <input type="hidden" name="qty" value="1">
                     {{ getCsrfInput() }}
+	   
+{% nav category in product.productDepartments %}
+  <li>
+    <a href="{{ category.url }}">{{ category.title }}</a>
+    {% ifchildren %}
+      <ul>
+        {% children %}
+      </ul>
+    {% endifchildren %}
+  </li>
+{% endnav %}
+ 
+            {% if product.getType.hasVariants %}
                     <select name="purchasableId">
                         {%- for purchasable in product.variants -%}
                             <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %} value="{{ purchasable.purchasableId }}">{{ purchasable.description }} {{ purchasable.salePrice|currency(cart.currency) }}</option>
                         {%- endfor -%}
                     </select>
-                    <select name="options[giftWrapped]">
-                        <option value="no">No gift wrap.</option>
-                        <option value="yes">Gift wrapped.</option>
-                    </select>
+	    {% else %}
+                        {%- for purchasable in product.variants -%}
+				<span>{{ purchasable.salePrice|currency(cart.currency) }}</span>
+		    		<input type="hidden" name="purchasableId" value="{{ purchasable.purchasableId }}" />
+                        {%- endfor -%}
+            {% endif %}
                     {% if product.unlimitedStock or (product.unlimitedStock == false and product.totalStock > 0 ) %}
                         <button type="submit">{{ "Add to cart"|t }}</button>
                     {% else %}
