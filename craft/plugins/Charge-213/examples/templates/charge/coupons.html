@@ -1,0 +1,67 @@
+{% extends "charge/_layout" %}
+
+{% block content %}
+    <h2>Coupons</h2>
+    <p>This payment form follows the same setup as the basic payment form, but now includes the option to specify a coupon.</p>
+    <p>The coupons are defined in the CP > Charge > Settings > Coupons, and can be either fixed value, or percentage based, and apply to either one-time, or recurring payments. Recurring payment coupons also can have additional usage limitations, such to make them only available for [x] recurring periods. ie. Apply a 50% discount to the first 3 payments, before reverting back to the full original value.</p>
+    <p>By default we validate a coupon's state as part of the payment request, but there is an additional ajax only endpoint <code>charge/coupon/validate</code> that you can use to validate the state of a coupon, withouth submitting a payment request. The ajax endpoint will also return the specific information about a coupon code, so you can show how the discount will affect the payment. </p>
+
+    <hr/>
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form class="form-horizontal"
+                  id="charge-form"
+                  method="post"
+                  action=""
+                  accept-charset="UTF-8"
+                  data-publicKey="{{ craft.charge.getPublicKey }}">
+                {{ forms.hidden({ name : 'action', value: 'charge/charge' }) }}
+                {{ getCsrfInput() }}
+
+                {% set options = {
+                    'planAmount' : 99.99,
+                    'planInterval' : 'day',
+                    'planIntervalCount' : 1
+                } %}
+                {{ craft.charge.setPaymentOptions(options) }}
+
+
+                {% if allErrors is defined %}
+                    {{ forms.errorBlock(allErrors) }}
+                {% endif %}
+
+                <div id="payment-errors" class="alert alert-error"></div>
+
+                <h4>Customer Details</h4>
+                {% include 'charge/_includes/inputs/customerDetails' %}
+
+                <h4>Plan Details</h4>
+                {{ stripe.amountField({
+                    label: 'Amount',
+                    value: options.planAmount ~ ' every day',
+                    readonly: true
+                }) }}
+
+
+                <h4>Coupon</h4>
+                {{ forms.textField({
+                    name: 'coupon',
+                    id: 'coupon',
+                    label: 'Coupon Code',
+                    value: (charge is defined ? charge.coupon ),
+                    instructions : 'Enter your coupon code here',
+                    errors: (charge is defined ? charge.getErrors('coupon'))
+                }) }}
+
+                <h4>Card Details</h4>
+                {% include 'charge/_includes/inputs/cardDetails' %}
+
+
+                {% include 'charge/_includes/inputs/paymentButton' %}
+
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

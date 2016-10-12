@@ -1,0 +1,44 @@
+{%- set fieldId = (fieldId is defined ? fieldId : (id is defined ? id~'-field' : null)) %}
+{%- set label = (label is defined and label != '__blank__' ? label : null) %}
+{%- set locale = ((craft.isLocalized() and locale is defined) ? locale : null) %}
+{%- set instructions = (instructions is defined ? instructions : null) %}
+{%- set warning = (warning is defined ? warning : null) %}
+{%- set orientation = craft.i18n.getLocaleData(locale ?: craft.locale).getOrientation() %}
+{%- set errors = (errors is defined ? errors : null) -%}
+{%- set fieldWidth = (fieldWidth is defined ? fieldWidth : 'col-sm-10') -%}
+{%- set labelWidth = (labelWidth is defined ? labelWidth : 'col-sm-2') -%}
+{%- set fieldClass = [
+    'form-group',
+    (first is defined and first ? 'first' : null),
+    (errors ? 'has-error' : null),
+    (fieldClass is defined and fieldClass ? fieldClass : null)
+    ]|filter|join(' ') -%}
+
+<div class="{{ fieldClass }}"{% if fieldId %} id="{{ fieldId }}"{% endif %}>
+
+    {% if label %}
+        <div class="heading {{ labelWidth }} control-label">
+            {% if label %}
+                <label{% if required is defined and required %} class="required"{% endif %}{% if id is defined and id %} for="{{ id }}"{% endif %}>
+                    {{- label|raw -}}
+                    {%- if locale -%}
+                        <span class="locale">{{ locale }}</span>
+                    {%- endif -%}
+                </label>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="{{ fieldWidth }}">
+        <div class="input {{ orientation }}{% if errors %} errors{% endif %}">
+            {{ input|raw }}
+        </div>
+        {% if instructions %}
+            <div class="instructions">{{ instructions|md }}</div>
+        {% endif %}
+        {% if warning %}
+            <p class="warning">{{ warning }}</p>
+        {% endif %}
+        {% include "charge/_includes/macros/stripe/errorList" with { errors: errors } %}
+    </div>
+</div>

@@ -1,0 +1,31 @@
+{% extends "charge/_layouts/cp" %}
+{% set selectedSubnavItem = 'logs' %}
+
+{% set crumbs = [
+    { label: "Charge"|t, url: url('charge') },
+    { label: "Log"|t, url: url('charge/log') }
+] %}
+
+{% block pageTitle %}
+    <form method="post">
+        <h1>Charge Logs</h1>
+        {{ getCsrfInput() }}
+        {% if threaded %}
+        <input type="hidden" name="action" value="charge/log/clearAll"/>
+        <div id="revisionbtn" class="btn formsubmit" data-confirm="Are you sure you want to clear all the logs?">Clear</div>
+        {% endif %}
+    </form>
+{% endblock %}
+
+{% block content %}
+{% include 'charge/_includes/logTable' with { 'threads' : threaded, 'fadeOut' : true, 'paginate' : true } %}
+{% endblock %}
+{% set js %}
+new Craft.AdminTable({
+    tableSelector: '#logs',
+    noObjectsSelector: '#nologs',
+    deleteAction: 'charge/log/deleteLog',
+});
+{% endset %}
+{% includeJs js %}
+

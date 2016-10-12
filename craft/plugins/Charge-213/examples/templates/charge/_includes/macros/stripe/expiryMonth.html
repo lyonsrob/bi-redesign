@@ -1,0 +1,6 @@
+<select class="form-control" data-stripe="exp_month" id="cardExpMonth">
+    {% for month in craft.i18n.getLocaleData().getMonthNames() %}
+        <option value="{{ loop.index }}"
+                {% if now.month == loop.index %}selected="selected"{% endif %}>{{ month }}</option>
+    {% endfor %}
+</select>

@@ -1,0 +1,68 @@
+{% extends "_layouts/cp" %}
+{% hook 'charge.prepCpTemplate' %}
+{% set elementType = 'Charge_Subscriber' %}
+{% set selectedSubnavItem = 'subscribers' %}
+
+{% import "_includes/forms" as forms %}
+
+{% set title %}
+    {{ subscriber.subscription.name }} Subscription for {{ subscriber.user.getName }}
+{% endset %}
+
+
+{% set crumbs = [
+{ label: "Charge"|t, url: url('charge') },
+{ label: "Subscriber"|t, url: url('charge/subscribers/'~subscriber.id) }
+] %}
+
+
+{% block main %}
+
+
+    <div class="pane">
+            <h2>Info</h2>
+            <table class="data">
+                <tbody>
+                <tr>
+                    <td class="light">User</td>
+                    <td><a href="{{ subscriber.user.getCpEditUrl }}">{{ subscriber.user.getName }}</a></td>
+                </tr>
+                <tr>
+                    <td class="light">ID</td>
+                    <td>{{ subscriber.id }}</td>
+                </tr>
+
+
+                <tr>
+                    <td class="light">Joined Date</td>
+                    <td><strong>{{ subscriber.dateCreated.localeDate() }}</strong> at
+                        <strong>{{ subscriber.dateCreated.localeTime() }}</strong></td>
+                </tr>
+                <tr>
+                    <td class="light">Parent Charge</td>
+                    <td><a href="{{ charge.getCpEditUrl }}">{{ charge.getShortname }}</a></td>
+                </tr>
+                <tr>
+                    <td class="light">Subscription</td>
+                    <td>{{ subscriber.subscription.name }}</td>
+                </tr>
+                <tr>
+                    <td class="light">Status</td>
+                    <td><span class="status {{ subscriber.status }}"></span> {{ subscriber.status | ucwords }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <hr/>
+
+        <h2>Related Details</h2>
+        {% include 'charge/_includes/panes/customer' with { 'customer' : subscriber.customer } only %}
+        {% if charge.type == 'recurring' %}
+            {% include 'charge/_includes/panes/subscription' with { 'subscription' : charge.subscription } only %}
+        {% endif %}
+        {% include 'charge/_includes/panes/payments' with { 'payments' : charge.payments } only %}
+
+    </div>
+{% endblock %}
+

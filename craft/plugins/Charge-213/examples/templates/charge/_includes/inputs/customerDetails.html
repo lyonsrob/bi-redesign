@@ -1,0 +1,40 @@
+
+{{ forms.textField({
+    label: 'Name',
+    name: 'customerName',
+    id: 'customerName',
+    placeholder: 'eg. Joe Smith',
+    value: (charge is defined ? charge.customerName ),
+    errors: (charge is defined ? charge.getErrors('customerName'))
+}) }}
+
+{{ forms.textField({
+    label: 'Receipt Email',
+    name: 'customerEmail',
+    id: 'customerEmail',
+    placeholder: 'eg. joe@smith.org',
+    value: (charge is defined ? charge.customerEmail : currentUser ? currentUser.email),
+    errors: (charge is defined ? charge.getErrors('customerEmail'))
+}) }}
+
+{% if (registerGuest is defined and registerGuest) %}
+
+    {% if not currentUser %}
+    {{ forms.selectField({
+        label: 'Save Account',
+        name: 'createAccount',
+        id: 'createAccount',
+        options: { 'yes' : 'Save my account', 'no' : 'No, dont create an account'},
+        value: (charge is defined ? charge.createAccount ),
+        errors: (charge is defined ? charge.getErrors('createAccount'))
+    }) }}
+
+    {{ forms.passwordField({
+        label: 'Set your Password',
+        name: 'password',
+        id: 'password',
+        errors: (charge is defined and charge.user ? charge.user.getErrors('password'))
+    }) }}
+    {% endif %}
+
+{% endif %}

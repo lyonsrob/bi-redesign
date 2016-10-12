@@ -1,0 +1,53 @@
+<div class="pane">
+    <h2 id="payments">Payments</h2>
+
+    <table class="data fullwidth">
+        <thead>
+        <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Mode</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Card</th>
+            <th scope="col">Stripe</th>
+            <th scope="col">Status</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for payment in payments %}
+            <tr class="payment-status-{{ payment.status }}">
+                <td>{{ payment.dateCreated }}</td>
+                <td><span class="modeLabel {{ payment.mode }}">{{ payment.mode }}</span></td>
+                <td>{{ payment.formatAmount }}</td>
+
+                <td><span class="cardType type{{ payment.cardType }}"></span>
+                    <strong>{{ payment.formatCard }}</strong>{% if
+                    payment.cardExpMonth != '' %} <strong>({{ payment.cardExpMonth }}/{{ payment.cardExpYear }}
+                        )</strong>{% endif %}
+                </td>
+                <td><a href="{{ payment.stripeLink }}" target="_blank"><span
+                                class="go nowrap">{{ payment.stripeId }}</span></a></td>
+                <td><code>{{ payment.status }}</code></td>
+                <td>
+                    {% if payment.status == 'succeeded' %}
+                    <form class="charge-refund-action" method="post" accept-charset="UTF-8">
+                        <input type="hidden" name="action" value="">
+                        <input type="hidden" name="redirect" value="">
+                        {{ getCsrfInput() }}
+                        <div class="btngroup">
+                            <input type="button" class="btn small formsubmit"
+                                   value="{{ 'Refund Payment'|t }}"
+                                   data-action="charge/charges/refundPayment"
+                                   data-confirm="{{ 'Are you sure you want to refund this payment?'|t }}"
+                                   data-redirect="charge/detail/{{ payment.chargeId }}"
+                                   data-param="paymentId"
+                                   data-value="{{ payment.id }}">
+                        </div>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

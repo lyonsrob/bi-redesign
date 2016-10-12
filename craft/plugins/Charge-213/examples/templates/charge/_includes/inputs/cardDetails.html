@@ -1,0 +1,99 @@
+<div class="well">
+    {% if charge is defined and charge.cardToken is not null %}
+
+        <p>We have card details.</p>
+        <p>Card Last 4 : {{ charge.cardLast4 }}</p>
+
+        {# Actually include the existing card details #}
+        {{ forms.hidden({ name: 'cardToken', value: charge.cardToken, 'data': { stripe: 'token' }}) }}
+        {{ forms.hidden({ name: 'cardLast4', value: charge.cardLast4 }) }}
+        {{ forms.hidden({ name: 'cardType', value: charge.cardType }) }}
+        {{ forms.hidden({ name: 'cardName', value: charge.cardName }) }}
+        {{ forms.hidden({ name: 'cardExpMonth', value: charge.cardExpMonth }) }}
+        {{ forms.hidden({ name: 'cardExpYear', value: charge.cardExpYear }) }}
+        {{ forms.hidden({ name: 'cardName', value: charge.cardName }) }}
+
+    {% else %}
+        {% set hasSavedCard = false %}
+        {% if savedCard is defined and craft.charge.customer %}
+
+            {% set cards = craft.charge.customer.getSavedCards %}
+
+            {% if cards %}
+                {% for card in cards %}
+                    {% set hasSavedCard = true %}
+                    <div class="form-group ">
+                        {{ forms.radioField({ label: 'Pay with saved card <br/><span class="label label-info">'~card.brand~'</span> '~card.formattedCard~' ('~card.exp_month~'/'~card.exp_year~')', name: 'useSavedCard', value: card.id, checked: true }) }}
+                    </div>
+                {% endfor %}
+                <div class="form-group">
+                {{ forms.radioField({ label: 'Pay with new card', name: 'useSavedCard', value: false, id: 'newCardRadio' }) }}
+                </div>
+
+                {% includejs %}
+                    $('input[name=useSavedCard]').on('change', function() {
+                        if($(this).val() == '') {
+                            $('.form-new-card').removeClass('hidden').slideDown();
+                        } else {
+                            $('.form-new-card').slideUp();
+                        }
+                    });
+                {% endincludejs %}
+            {% endif %}
+        {% endif %}
+        <div class="form-new-card {{ hasSavedCard ? 'hidden' }}">
+            {% if hasSavedCard %}<hr/>{% endif %}
+
+            <div class="form-group">
+                {{ stripe.cardField({
+                    label: 'Number',
+                    class: 'cc-number',
+                    id: 'cardNumber'
+                }) }}
+            </div>
+
+            <div class="form-group">
+                 {{ stripe.expiryField({
+                    label: 'Expiry',
+                    id: 'cardExpiry',
+                    class: 'cc-expiry',
+                    placeholder: 'MM / YY'
+                }) }}
+                {#
+                Prefer to have seperate month and year inputs?
+                Just use the following instead
+#}
+             {#   {{ stripe.expiry({
+                    label: 'Expiry',
+                    id: 'cardExpMonth',
+                    class: 'cc-expiry'
+                }) }}
+                {{ stripe.expiryYear({
+                    label: 'Expiry Year',
+                    id: 'cardExpYear',
+                    class: 'cc-expiry'
+                }) }}#}
+
+
+            </div>
+            <div class="form-group">
+                {{ stripe.cvcField({
+                    label: 'CVC',
+                    id: 'cardCvc',
+                    class: 'cc-cvc',
+                    placeholder: '•••'
+                }) }}
+            </div>
+            <div class="form-group">
+                {{ stripe.textField({ label: 'Type', fieldWidth: 'col-sm-2', class:'card-type', readonly: true}) }}
+            </div>
+
+            {% if savedCard is defined and currentUser %}
+                <div class="form-group ">
+                    {{ forms.checkboxField({ label: 'Save this card for later?', name: 'saveCard', checked: true }) }}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+</div>

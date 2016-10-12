@@ -1,0 +1,60 @@
+{% extends "charge/_layout" %}
+
+{% block content %}
+    <h2>Basic Payment</h2>
+    <p>This is a basic payment form. We're setting a set payment amount of $99.99, and then collecting only the simplest of customer details.</p>
+    <p>This payment form is a great place to start when getting started with Charge.</p>
+
+    <hr/>
+
+    {#
+        You'll see this form uses a number of includes and macros to function.
+        This is primarly so our demos are all consistent and easily portable.
+        Your own templates don't need to break things down as abstract if you don't want
+     #}
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form class="form-horizontal"
+                id="charge-form"
+                method="post"
+                action=""
+                accept-charset="UTF-8"
+                data-publicKey="{{ craft.charge.getPublicKey }}">
+
+                {{ forms.hidden({ name : 'action', value: 'charge/charge' }) }}
+                {{ getCsrfInput() }}
+
+                {% set options = {
+                    'planAmount' : 99,
+                    'planCurrency': 'gbp'
+                } %}
+                {{ craft.charge.setPaymentOptions(options) }}
+
+
+                {% if allErrors is defined %}
+                    {{ forms.errorBlock(allErrors) }}
+                {% endif %}
+
+                <div id="payment-errors" class="alert alert-error"></div>
+
+                <h4>Customer Details</h4>
+                {% include 'charge/_includes/inputs/customerDetails' %}
+
+                <h4>Plan Details</h4>
+                {{ stripe.amountField({
+                    label: 'Amount',
+                    value: options.planAmount,
+                    readonly: true
+                }) }}
+
+                <h4>Card Details</h4>
+                {% include 'charge/_includes/inputs/cardDetails' %}
+
+                {% include 'charge/_includes/inputs/paymentButton' %}
+
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

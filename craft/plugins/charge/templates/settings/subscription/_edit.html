@@ -1,0 +1,132 @@
+{% extends "charge/_layouts/settingscp" %}
+{% set fullPageForm = true %}
+{% set isNewSubscription = (subscription is not defined or not subscription.id) %}
+{% set title = (isNewSubscription ? 'New Subscription' : 'Edit Subscription') %}
+
+
+{% block content %}
+    <input type="hidden" name="action" value="charge/membershipSubscription/save">
+    <input type="hidden" name="redirect" value="charge/settings/subscriptions">
+
+
+    {% if not isNewSubscription %}
+        <input type="hidden" name="subscriptionId" value="{{ subscription.id }}">
+    {% endif %}
+
+
+    {{ forms.textField({
+        label: "Subscription Name"|t,
+        instructions: 'What this subscription will be called in the CP',
+        id: 'name',
+        name: 'name',
+        autofocus: true,
+        required: true,
+        value: (subscription is defined ? subscription.name ),
+        errors: (subscription is defined ? subscription.getErrors('name'))
+    }) }}
+
+    {{ forms.textField({
+        label: "Subscription Handle"|t,
+        instructions: 'How you\'ll refer to this subscription in the templates',
+        id: 'handle',
+        name: 'handle',
+        class: 'code',
+        required: true,
+        value: (subscription is defined ? subscription.handle ),
+        errors: (subscription is defined ? subscription.getErrors('handle'))
+    }) }}
+
+    <hr/>
+
+
+    {% set groups = [{ label: "None"|t, value: '' }] %}
+    {% for group in craft.userGroups.getAllGroups() %}
+        {% set groups = groups|merge([{ label: group.name, value: group.id }]) %}
+    {% endfor %}
+    {{ forms.selectField({
+        label: "User Group"|t,
+        id: 'activeUserGroup',
+        name: 'activeUserGroup',
+        value: (subscription is defined ? subscription.activeUserGroup ),
+        errors: (subscription is defined ? subscription.getErrors('activeUserGroup')),
+        required: true,
+        options: groups,
+        instructions: 'When a user joins a subscription they\'ll be added to this user group. When they leave the subscription they\'ll be removed.'|t
+    }) }}
+
+    <hr/>
+
+    <h3>Emails</h3>
+
+
+
+    {{ forms.multiselectField({
+        label: 'Welcome Emails'|t,
+        instructions: 'Select the emails that will be sent when a user starts a subscription.'|t,
+        id: 'successEmails',
+        name: 'successEmails',
+        options: emails,
+        values: successEmailIds is defined ? successEmailIds : subscription.getSuccessEmailIds(),
+        errors: null,
+        class: 'selectize fullwidth',
+    }) }}
+
+    {{ forms.multiselectField({
+        label: 'Payment Emails'|t,
+        instructions: 'Select the emails that will be sent when a user completes a payment. (this includes later recurring payments)'|t,
+        id: 'recurringEmails',
+        name: 'recurringEmails',
+        options: emails,
+        values: recurringEmailIds is defined ? recurringEmailIds : subscription.getRecurringEmailIds(),
+        errors: null,
+        class: 'selectize fullwidth',
+    }) }}
+
+    {{ forms.multiselectField({
+        label: 'Failure Emails'|t,
+        instructions: 'Select the emails that will be sent when a user\'s subscription ends.'|t,
+        id: 'failureEmails',
+        name: 'failureEmails',
+        options: emails,
+        values: failureEmailIds is defined ? failureEmailIds : subscription.getFailureEmailIds(),
+        errors: null,
+        class: 'selectize fullwidth',
+    }) }}
+
+    <hr/>
+
+    {{ forms.lightswitchField({
+        label: "Enabled?"|t,
+        id: 'enabled',
+        name: 'enabled',
+        value: 1,
+        on: subscription.enabled,
+        errors: subscription.getErrors('enabled'),
+        instructions: 'Can new subscribers join this subscription? Disabling won\'t cancel or removing existing subscribers'
+    }) }}
+
+{% endblock %}
+
+{% includejs %}
+new Craft.SlugGenerator('#name', '#handle');
+
+$(function () {
+    $('#successEmails').selectize({
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
+    });
+
+    $('#recurringEmails').selectize({
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
+    });
+
+    $('#failureEmails').selectize({
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
+    });
+
+});
+{% endincludejs %}
+
+

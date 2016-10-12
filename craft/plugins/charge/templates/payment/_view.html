@@ -1,0 +1,179 @@
+{% extends "_layouts/cp" %}
+{% hook 'charge.prepCpTemplate' %}
+{% set elementType = 'Charge' %}
+
+{% import "_includes/forms" as forms %}
+
+{% set title %}
+    {{ charge.getShortname }} <small>by</small> {{ charge.customer.email }}
+{% endset %}
+
+
+{% set crumbs = [
+{ label: "Charge"|t, url: url('charge') },
+{ label: "Detail"|t, url: url('charge/detail/'~charge.id) }
+] %}
+
+
+{% block main %}
+
+    {% if charge.mode == 'test' %}
+        <p><strong>This was a Test Mode transaction. No real monies were paid.</strong></p>
+    {% endif %}
+
+    <div class="pane">
+            <h2>Info</h2>
+            <table class="data">
+                <tbody>
+                <tr>
+                    <td class="light">Amount</td>
+                    <td><strong>{{ charge.getShortname }}</strong></td>
+                </tr>
+
+                <tr>
+                    <td class="light">Status</td>
+                    <td>{{ charge.getHtmlStatusLabel | raw}}</td>
+                </tr>
+
+                <tr>
+                    <td class="light">Type</td>
+                    <td>{{ charge.type | ucfirst }}</td>
+                </tr>
+
+                <tr>
+                    <td class="light">ID</td>
+                    <td>{{ charge.id }}</td>
+                </tr>
+
+                <tr>
+                    <td class="light">Hash</td>
+                    <td>{{ charge.hash }}</td>
+                </tr>
+                <tr>
+                    <td class="light">Date</td>
+                    <td><strong>{{ charge.timestamp.localeDate() }}</strong> at
+                        <strong>{{ charge.timestamp.localeTime() }}</strong></td>
+                </tr>
+                {% if charge.description %}
+                <tr>
+                    <td class="light">Description</td>
+                    <td>{{ charge.description }}</td>
+                </tr>
+                {% endif %}
+
+                {% if charge.meta %}
+                    <tr>
+                        <td class="light">Metadata</td>
+                        <td>
+                            <ul>
+                                {% for metakey,metaval in charge.meta %}
+                                    <li><span class="light">{{ metakey }}</span> : {{ metaval }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include 'charge/_includes/panes/customer' with { 'customer' : charge.customer } only %}
+        {% if charge.type == 'recurring' %}
+            {% include 'charge/_includes/panes/subscription' with { 'subscription' : charge.subscription } only %}
+        {% endif %}
+        {% include 'charge/_includes/panes/payments' with { 'payments' : charge.payments } only %}
+
+        {% if chargeModel.getFieldLayout().getTabs()|length %}
+            <form id="order-form" method="post" accept-charset="UTF-8"
+                  data-saveshortcut
+                  data-saveshortcut-redirect="{{ charge.cpEditUrl }}"
+                  data-confirm-unload>
+                <input type="hidden" name="action" value="charge/charges/saveCharge">
+                <input type="hidden" name="redirect" value="charge">
+                {{ getCsrfInput() }}
+
+
+                {# Custom fields pane #}
+                <div id="fields" class="pane">
+                    {% include "_includes/tabs" %}
+                    {% if charge.id %}<input type="hidden" name="chargeId" value="{{ charge.id }}">{% endif %}
+
+                    {% for tab in chargeModel.getFieldLayout().getTabs() %}
+                        <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
+                            {% include "_includes/fields" with {
+                            fields: tab.getFields(),
+                            element: charge,
+                            } only %}
+                        </div>
+                    {% endfor %}
+                    <div class="footer">
+                        <div class="btngroup right submit first">
+                            <input type="submit" class="btn submit"
+                                   value="{{ 'Save'|t }}">
+
+                            <div class="btn submit menubtn"></div>
+                            <div class="menu">
+                                <ul>
+                                    <li><a class="formsubmit"
+                                           data-redirect="{{ charge.cpEditUrl }}">
+                                            {{ "Save and continue editing"|t }}
+                                            {{ forms.optionShortcutLabel('S') }}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                {# End custom fields pane #}
+            </form>
+        {% endif %}
+
+        <hr/>
+
+        <div class="pane">
+            <h2>Admin Options</h2>
+            <form method="post" action="" accept-charset="UTF-8">
+                {{ getCsrfInput() }}
+                <input type="hidden" name="action" value="charge/charges/updateNotes">
+                <input type="hidden" name="redirect" value="charge/detail/{{ charge.id }}"/>
+                <input type="hidden" name="chargeId" value="{{ charge.id }}"/>
+
+                {{ forms.textareaField({
+                    label: "Notes"|t,
+                    id: 'notes',
+                    name: 'notes',
+                    value: charge.notes,
+                    class: 'nicetext',
+                    instructions: 'Only visible to admins'
+                }) }}
+
+                <p><input type="submit" class="btn submit" value="Update Notes"></p>
+            </form>
+            <hr/>
+            <h3>Actions</h3>
+            <form id="charge-actions" method="post" accept-charset="UTF-8">
+                <input type="hidden" name="action" value="">
+                <input type="hidden" name="redirect" value="">
+                {{ getCsrfInput() }}
+                <div class="btngroup">
+                    <input type="button" class="btn formsubmit"
+                           value="{{ 'Delete Charge'|t }}"
+                           data-action="charge/charges/deleteCharge"
+                           data-confirm="{{ 'Are you sure you want to delete this charge? Note: This does not refund the payments, cancel any subscriptions or alter data on Stripe '|t }}"
+                           data-redirect="charge"
+                           data-param="chargeId"
+                           data-value="{{ charge.id }}">
+                </div>
+            </form>
+        </div>{# end pane #}
+
+    </div>
+{% endblock %}
+
+{% includejs %}
+    new Craft.ElevatedSessionForm('.charge-refund-action');
+    new Craft.ElevatedSessionForm('.charge-recur-cancel-action');
+{% endincludejs %}
+

@@ -1,0 +1,36 @@
+{% extends "charge/_layout" %}
+
+{% block content %}
+    <h2>Stripe Checkout</h2>
+    <p>This payment form uses Stripe Checkout instead of Stripe.js</p>
+    <p>Stripe Checkout takes the place of the primary card inputs as used in the other demos. Checkout is simpler to display and removes the need to style up the card inputs, but removes alot of the control you'd normally have for the payment inputs.</p>
+    <p class="note"><strong>No extra js needed</strong> When using Stripe Checkout you don't need to include any additional javascript on the page. All of the required js is included as part of the modal setup.</p>
+    <hr/>
+
+    {#
+        You'll see this form uses a number of includes and macros to function.
+        This is primarly so our demos are all consistent and easily portable.
+        Your own templates don't need to break things down as abstract if you don't want
+     #}
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form class="form-horizontal" method="post" action="">
+                {{ forms.hidden({ name : 'action', value: 'charge/charge' }) }}
+                {{ forms.hidden({ name : 'redirect', value: 'charge/success/{hash}' }) }}
+                {{ getCsrfInput() }}
+
+                {% set options = {
+                    planAmount : 99.99,
+                    checkout : {
+                        name: 'Acme ltd.',
+                        image: 'https://s3.amazonaws.com/stripe-uploads/hSYxIZGM3U0DbmPKsJszRHm3OU3D4CtHmerchant-icon-641868-add-on-icon.png',
+                        label: 'Buy Now!',
+                        description: '1 x Awesome Product'
+                    }
+                } %}
+                {{ craft.charge.setCheckoutOptions(options) }}
+            </form>
+        </div>
+    </div>
+{% endblock %}

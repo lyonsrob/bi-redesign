@@ -1,0 +1,49 @@
+{% extends "charge/_layout" %}
+
+{% block content %}
+    <h2>Saved Cards</h2>
+    <p>Saving cards is very simple. By allowing customers to save their payment cards during checkout, they'll later have the option to pay with their saved cards.</p>
+
+    <hr/>
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form class="form-horizontal"
+                  id="charge-form"
+                  method="post"
+                  action=""
+                  accept-charset="UTF-8"
+                  data-publicKey="{{ craft.charge.getPublicKey }}">
+                {{ getCsrfInput() }}
+                {{ forms.hidden({ name : 'action', value: 'charge/charge' }) }}
+
+                {% set options = {
+                'planAmount' : 9.99
+                } %}
+                {{ craft.charge.setPaymentOptions(options) }}
+
+
+                {% if allErrors is defined %}
+                    {{ forms.errorBlock(allErrors) }}
+                {% endif %}
+
+                <div id="payment-errors" class="alert alert-error"></div>
+                <h4>Customer Details</h4>
+                {% include 'charge/_includes/inputs/customerDetails' %}
+
+                <h4>Plan Details</h4>
+                {{ stripe.amountField({
+                    label: 'Amount',
+                    value: options.planAmount,
+                    readonly: true
+                }) }}
+
+                <h4>Card Details</h4>
+                {% include 'charge/_includes/inputs/cardDetails' with { savedCard : true } %}
+
+                {% include 'charge/_includes/inputs/paymentButton' %}
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

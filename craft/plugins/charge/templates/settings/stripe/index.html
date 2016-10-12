@@ -1,0 +1,82 @@
+{% extends "charge/_layouts/settings" %}
+{% set selectedTab = 'settings' %}
+{% set title = "Settings"|t %}
+
+
+{% block content %}
+
+    <h1>Stripe Credentials</h1>
+
+
+    <form method="post" accept-charset="UTF-8" data-saveshortcut>
+        {{ getCsrfInput() }}
+        {{ forms.hidden({ name: 'action', value: 'charge/settings/saveCredentials' }) }}
+        {{ forms.hidden({ name: 'pluginClass', value: 'Charge' }) }}
+        {{ forms.hidden({ name: 'redirect', value: 'charge/settings/stripe' }) }}
+
+
+        <h4>Test Credentials</h4>
+        {{ forms.textField({
+            label: "Test Secret Key"|t,
+            id: 'stripeTestCredentialsSK',
+            name: 'credentials[stripeTestCredentialsSK]',
+            instructions: ""|t,
+            value: (credentials.stripeTestCredentialsSK is defined ? credentials.stripeTestCredentialsSK ),
+            readonly: not settingsEditable,
+            warning: (not settingsEditable ? 'Set in your config as \'credentials > stripeTestCredentialsSK\'' )
+        }) }}
+
+
+        {{ forms.textField({
+            label: "Test Publishable Key"|t,
+            id: 'stripeTestCredentialsPK',
+            name: 'credentials[stripeTestCredentialsPK]',
+            instructions: ""|t,
+            value: (credentials.stripeTestCredentialsPK is defined ? credentials.stripeTestCredentialsPK ),
+            readonly: not settingsEditable,
+            warning: (not settingsEditable ? 'Set in your config as \'credentials > stripeTestCredentialsPK\'' )
+        }) }}
+
+        <hr/>
+
+        <h4>Live Credentials</h4>
+        {{ forms.textField({
+            label: "Live Secret Key"|t,
+            id: 'stripeLiveCredentialsSK',
+            name: 'credentials[stripeLiveCredentialsSK]',
+            instructions: ""|t,
+            value: (credentials.stripeLiveCredentialsSK is defined ? credentials.stripeLiveCredentialsSK ),
+            readonly: not settingsEditable,
+            warning: (not settingsEditable ? 'Set in your config as \'credentials > stripeLiveCredentialsSK\'' )
+        }) }}
+
+        {{ forms.textField({
+            label: "Live Publishable Key"|t,
+            id: 'stripeLiveCredentialsPK',
+            name: 'credentials[stripeLiveCredentialsPK]',
+            instructions: ""|t,
+            value: (credentials.stripeLiveCredentialsPK is defined ? credentials.stripeLiveCredentialsPK),
+            readonly: not settingsEditable,
+            warning: (not settingsEditable ? 'Set in your config as \'credentials > stripeLiveCredentialsPK\'' )
+        }) }}
+
+        <hr/>
+
+        {{ forms.selectField({
+            label: "Default Currency"|t,
+            id: 'stripeDefaultCurrency',
+            name: 'credentials[stripeDefaultCurrency]',
+            instructions: ""|t,
+            value: (credentials.stripeDefaultCurrency is defined ? credentials.stripeDefaultCurrency|upper),
+            options : currencies,
+            readonly: not settingsEditable,
+            warning: (not settingsEditable ? 'Set in your config as \'credentials > stripeDefaultCurrency\'' )
+        }) }}
+
+        <div class="buttons">
+            <input type="submit" class="btn submit" value="Save & Validate Credentials"/>
+        </div>
+
+    </form>
+
+{% endblock %}

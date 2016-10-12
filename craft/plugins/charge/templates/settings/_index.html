@@ -1,0 +1,81 @@
+{% extends "charge/_layouts/settings" %}
+{% set title = "Setup"|t %}
+
+{% block content %}
+
+
+    <h1>Settings</h1>
+
+    <h2>General</h2>
+    {% if configured %}
+        <p><span class="status green"></span><span class="title">Charge elements configured</span></p>
+        <p class="instructions"><em>Defines where customers are directed to after successful payments.</em></p>
+    {% else %}
+        <p><span class="status yellow"></span><span class="title">Charge elements not configured</span></p>
+        <p class="instructions"><em>Defines where customers are directed to after successful payments.</em></p>
+    {% endif %}
+    <p><a href="{{ url('charge/settings/charges') }}">Update General Settings</a></p>
+
+    <hr/>
+
+    <h2>Connection</h2>
+    {% if (status.live and status.test) %}
+        <p><span class="status green"></span><span class="title">Connected to Stripe</span></p>
+    {% else %}
+        {% if (not status.live and status.test) %}
+            <p><span class="status yellow"></span><span class="title">Connected to Stripe in Test only mode</span></p>
+            <p class="instructions"><em>Before being able to take live transactions you'll need to update the credentials.</em></p>
+        {% endif %}
+
+        {% if (status.live and not status.test) %}
+            <p><span class="status yellow"></span><span class="title">Connected to Stripe in Live only mode</span></p>
+            <p class="instructions"><em>You can take live transactions but not run test transactions.</em></p>
+        {% endif %}
+
+        {% if (not status.live and not status.test) %}
+
+            <p><span class="status red"></span><span class="title">Not Connected to Stripe</p>
+            <p class="instructions"><em>You'll need to add some Stripe credentials to use Charge.</em></p>
+        {% endif %}
+
+    {% endif %}
+    <p><a href="{{ url('charge/settings/stripe/credentials') }}">Update Stripe Credentials</a></p>
+
+
+    <hr/>
+    <h2>Mode</h2>
+    {% if mode == 'live' %}
+        <p><span class="status green"></span><span class="title">Stripe is Live Mode</span></p>
+    {% else %}
+        <p><span class="status yellow"></span><span class="title">Stripe is Test Mode</span></p>
+        <p><em>While in test mode, no real money will be taken, and only test cards are accepted.</em></p>
+    {% endif %}
+    <p><a href="{{ url('charge/settings/stripe/mode') }}">Update Stripe Mode</a></p>
+
+    <hr/>
+    <h2>Callbacks</h2>
+
+    {% if callback %}
+        {% if callback.dateCreated|date("U") > "-1 days"|date("U") %}
+            <p><span class="status green"></span><span class="title">Webhooks Configured</span></p>
+            <p><em>Most recent callback was on {{ callback.dateCreated|date }}</em></p>
+        {% else %}
+            <p><span class="status yellow"></span><span class="title">Webhooks Configured, but last received more than 24 hours ago</span></p>
+            <p><em>Most recent callback was on {{ callback.dateCreated|date }}</em></p>
+        {% endif %}
+    {% else %}
+        <p><span class="status red"></span><span class="title">No Webhooks Received</span></p>
+        <p><em>We have no records of received webhooks. For full functionality with recurring payments, webhooks must be configured.</em></p>
+    {% endif %}
+    <p><a href="{{ url('charge/settings/stripe/webhook') }}">Update Webhook Settings</a></p>
+
+    {% if connect %}
+    <hr/>
+    <h2>Stripe Connect</h2>
+
+    <p><span class="status green"></span><span class="title">Stripe Connect is enabled</span></p>
+    <p><em>Stripe Connect allows third parties to connect their own Stripe accounts to your Charge install.<br/>To properly enable there are some additional settings requried on your Stripe account.</em></p>
+    <p><a href="{{ url('charge/settings/connect/settings') }}">Update Connect Settings</a></p>
+    {% endif %}
+
+{% endblock %}

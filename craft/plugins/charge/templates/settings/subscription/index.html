@@ -1,0 +1,66 @@
+{% extends "charge/_layouts/settings" %}
+
+{% set title = "Membership Subscriptions" %}
+
+{% block content %}
+
+    {% if isPro %}
+    <div id="nosubscriptions"{% if subscriptions %} class="hidden"{% endif %}>
+        <p>{{ "No membership subscriptions exist yet."|t }}</p>
+    </div>
+
+    {% if subscriptions|length %}
+        <table id="subscriptions" class="data collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ "Name"|t }}</th>
+                <th scope="col">{{ "Handle"|t }}</th>
+                <th scope="col">{{ "Active User Group"|t }}</th>
+                <th scope="col">{{ "Success Emails"|t }}</th>
+                <th scope="col">{{ "Recurring Emails"|t }}</th>
+                <th scope="col">{{ "Failure Emails"|t }}</th>
+                <td class="thin"></td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for subscription in subscriptions %}
+                <tr data-id="{{ subscription.id }}" data-name="{{ subscription.name }}">
+                    <th scope="row" data-title="{{ 'Name'|t }}">
+                        {% if subscription.enabled %}
+                            <span class="status green"></span>
+                        {% else %}
+                            <span class="status"></span>
+                        {% endif %}
+                        <a href="{{ url('charge/settings/subscriptions/'~subscription.id) }}">{{ subscription.name }}</a>
+                    </th>
+                    <td data-title="{{ 'Handle'|t }}">{{ subscription.handle }}</td>
+                    <td data-title="{{ 'Active User Group'|t }}">{{ subscription.activeUserGroup }}</td>
+                    <td data-title="{{ 'Success Emails'|t }}">{{ subscription.successEmails | join(', ') }}</td>
+                    <td data-title="{{ 'Recurring Emails'|t }}">{{ subscription.recurringEmails | join(', ') }}</td>
+                    <td data-title="{{ 'Failure Emails'|t }}">{{ subscription.failureEmails | join(', ') }}</td>
+                    <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div id="n" class="buttons">
+        <a href="{{ url('charge/settings/subscriptions/new') }}" class="btn submit add icon">{{ "New Membership Subscription"|t }}</a>
+    </div>
+    {% else %}
+        <h1>Subscriptions</h1>
+        {% include 'charge/_includes/upgradePrompt' %}
+    {% endif %}
+{% endblock %}
+
+
+{% set js %}
+    new Craft.AdminTable({
+    tableSelector: '#subscriptions',
+    noObjectsSelector: '#nosubscriptions',
+    deleteAction: 'charge/membershipSubscription/delete'
+    });
+{% endset %}
+{% includeJs js %}
+

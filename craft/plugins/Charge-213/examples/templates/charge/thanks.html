@@ -1,0 +1,33 @@
+
+{% extends "charge/_layout" %}
+
+{% set hash = craft.request.getSegment(3) %}
+
+{% if charge is not defined %}
+	{% set charge = craft.charge.charges.hash(hash).first() %}
+{% endif %}
+
+
+{% block content %}
+	<h2>Success</h2>
+
+	<h3>{{ charge.amountFormatted }}</h3>
+	<p>Charge Id : {{ charge.id }}</p>
+	<p>Charge Id : {{ charge.customer.email }}{% if charge.customer.name %}, {{ charge.customer.name }}{% endif %}</p>
+	<p>{{ charge.description }}</p>
+
+	{% if charge is not null %}
+	<div class="well">
+		<h3>Payment</h3>
+		<ul>
+		{% for payment in charge.payments %}
+			<li>
+				{{ payment.formatAmount }} <strong>Paid on {{ payment.dateCreated }}</strong> using <strong>{{ payment.cardType }} {{ payment.formatCard }}</strong>{%if
+				payment.cardExpMonth != '' %} <strong>({{ payment.cardExpMonth }}/{{ payment.cardExpYear }})</strong>{% endif %}
+			</li>
+		{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+
+{% endblock %}

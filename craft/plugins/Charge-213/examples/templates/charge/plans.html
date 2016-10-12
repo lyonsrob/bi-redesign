@@ -1,0 +1,92 @@
+{% extends "charge/_layout" %}
+
+{% block content %}
+    <h2>Plan Choice</h2>
+    <p>As well as fixed value payments, you can specify multiple options for plans and actions, and then let the end customer pick the actual plan as part of the form.</p>
+    <p>This works in much the same way as the basic payments, but by passing multiple options in the setPaymentOptions tag, and adding a 'planChoice' input to the form.</p>
+
+    <hr/>
+
+    {#
+        You'll see this form uses a number of includes and macros to function.
+        This is primarly so our demos are all consistent and easily portable.
+        Your own templates don't need to break things down as abstract if you don't want
+     #}
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form class="form-horizontal"
+                  id="charge-form"
+                  method="post"
+                  action=""
+                  accept-charset="UTF-8"
+                  data-publicKey="{{ craft.charge.getPublicKey }}">
+                {{ forms.hidden({ name : 'action', value: 'charge/charge' }) }}
+                {{ getCsrfInput() }}
+
+                {% set options = {
+                    'planChoiceDefault': 'gold',
+                    'planChoices' : {
+                        'gold' : {
+                            'label': 'Gold Plan - $599 / year',
+                            'planAmount' : 599,
+                            'planInterval' : 'year',
+                            'planIntervalCount' : 1,
+                            'actions' : {
+                                'onSuccess': {
+                                    'subscription' : 'gold-membership'
+                                },
+                            }
+                        },
+                        'silver' : {
+                            'label': 'Silver Plan - $99 / month',
+                            'planAmount' : 99,
+                            'planInterval' : 'month',
+                            'planIntervalCount' : 1,
+                            'actions' : {
+                                'onSuccess': {
+                                    'subscription' : 'silver-membership'
+                                },
+                            }
+                        },
+                        'bronze' : {
+                            'label': 'Bronze Plan - $49 / month',
+                            'planAmount' : 49.99,
+                            'planInterval' : 'month',
+                            'planIntervalCount' : 1,
+                            'actions' : {
+                                'onSuccess': {
+                                    'subscription' : 'bronze-membership'
+                                },
+                            }
+                        }
+                    }
+                } %}
+                {{ craft.charge.setPaymentOptions(options) }}
+
+                {% if allErrors is defined %}
+                    {{ forms.errorBlock(allErrors) }}
+                {% endif %}
+
+                <div id="payment-errors" class="alert alert-error"></div>
+
+                <h4>Customer Details</h4>
+                {% include 'charge/_includes/inputs/customerDetails' %}
+
+                <h4>Plan Details</h4>
+                {{ forms.radioGroupField({
+                    label: 'Plan Choice',
+                    name: 'planChoice',
+                    id: 'planChoice',
+                    options: options.planChoices,
+                    value: (charge is defined ? charge.planChoice),
+                    errors: (charge is defined ? charge.getErrors('planChoice'))
+                }) }}
+
+                <h4>Card Details</h4>
+                {% include 'charge/_includes/inputs/cardDetails' %}
+                {% include 'charge/_includes/inputs/paymentButton' %}
+            </form>
+        </div>
+    </div>
+{% endblock %}

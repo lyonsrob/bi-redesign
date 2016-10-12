@@ -1,0 +1,77 @@
+{% extends "charge/_layouts/cp" %}
+
+{% set title %}
+    Connected Accounts
+{% endset %}
+
+{% set selectedSubnavItem = 'connect' %}
+
+{% block content %}
+
+    <div id="noaccounts"{% if accounts %} class="hidden"{% endif %}>
+        <p>{{ "No accounts exist yet."|t }}</p>
+    </div>
+
+    {% if accounts|length %}
+        <table id="accounts" class="data collapsible">
+            <thead>
+            <th scope="col">{{ "Owner"|t }}</th>
+            <th scope="col">{{ "Mode"|t }}</th>
+            <th scope="col">{{ "PK"|t }}</th>
+            <th scope="col">{{ "Stripe User"|t }}</th>
+            <th class="col">{{ "Created Date"|t }}</th>
+            </thead>
+            <tbody>
+            {% for account in accounts %}
+
+                <tr data-id="{{ account.id }}">
+                    <td><a href="{{ url('users/'~account.id) }}">{{ account.owner.friendlyName }}</a></td>
+                    <td>
+                        {% if account.livemode %}
+                            <span class="status green"></span> <span class="title">Live</span>
+                        {% else %}
+                            <span class="status yellow"></span> <span class="title">Test</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ account.stripePublishableKey }}</td>
+                    <td>{{ account.stripeUserId }}</td>
+                    <td>{{ account.dateCreated }}</td>
+                </tr>
+                {#
+                <tr data-id="{{ account.id }}" data-name="{{ account.name|t }}">
+                    <th scope="row" data-title="{{ 'Name'|t }}"><a href="{{ url('charge/settings/accounts/' ~ account.id) }}">{{ account.name|t }}</a></th>
+                    <td data-title="{{ 'Code'|t }}"><code>{{ account.code }}</code></td>
+                    <td data-title="{{ 'Type'|t }}">
+                        {%- if account.accountType == 'percentage' %}
+                            {{ account.percentageOff }}% off
+                        {% else %}
+                            {{ (account.amountOff / 100)|number_format(2, '.', '') }} {{ account.currency }}
+                        {% endif %} </td>
+                    <td data-title="{{ "Valid On"|t }}">
+                        {%- if account.paymentType == 'all' %}
+                            {{ 'All Payments'|t }}
+                        {% elseif account.paymentType == 'recurring' %}
+                            {{ 'Recurring'|t }}
+                        {% else %}
+                            {{ 'One-Off'|t }}
+                        {% endif %}
+                    </td>
+                    <td class="thin"><a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a></td>
+                </tr>#}
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+{% endblock %}
+
+
+{% set js %}
+    new Craft.AdminTable({
+    tableSelector: '#accounts',
+    noObjectsSelector: '#noaccounts',
+    deleteAction: 'charge/account/deleteAccount'
+    });
+{% endset %}
+{% includeJs js %}
+

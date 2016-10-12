@@ -1,0 +1,85 @@
+{% extends "charge/_layouts/settings" %}
+{% set selectedTab = 'settings' %}
+{% set title = "Settings"|t %}
+
+
+{% block content %}
+    <h1>Stripe Connect Details</h1>
+
+    <form method="post" accept-charset="UTF-8" data-saveshortcut>
+        {{ getCsrfInput() }}
+        {{ forms.hidden({ name: 'action', value: 'charge/settings/saveConnect' }) }}
+        {{ forms.hidden({ name: 'pluginClass', value: 'Charge' }) }}
+        {{ forms.hidden({ name: 'redirect', value: 'charge/settings/connect' }) }}
+
+        {{ forms.lightswitchField({
+            first: true,
+            label: "Connect Enabled"|t,
+            id: 'enabled',
+            name: 'connect[enabled]',
+            instructions: "Is Connect enabled for this site? Disabling will prevent all account usage, but not remove the details. You can reactivate later without loss of connected accounts."|t,
+            on: (connect.enabled is defined ? connect.enabled ),
+            autofocus: true,
+            toggle: 'connectoptions',
+            readonly: not settingsEditable,
+            warning: (not settingsEditable ? 'Set in your config as \'connect > enabled\'' )
+        }) }}
+
+        <div class="dependant {%- if (connect.enabled is not defined) or (not connect.enabled) %} hidden{% endif %}"
+             id="connectoptions">
+
+            <hr/>
+            <h3>Platform Ids</h3>
+            {{ forms.textField({
+                label: "Development Client ID"|t,
+                id: 'devClientId',
+                name: 'connect[devClientId]',
+                instructions: ""|t,
+                value: (connect.devClientId is defined ? connect.devClientId ),
+                instructions: "Your development connect application id, as found in your Stripe Connect platform settings",
+                placeholder: 'ca_000000000000000'
+            }) }}
+
+
+            {{ forms.textField({
+                label: "Production Client ID"|t,
+                id: 'prodClientId',
+                name: 'connect[prodClientId]',
+                instructions: ""|t,
+                value: (connect.prodClientId is defined ? connect.prodClientId ),
+                instructions: "Your productionconnect application id, as found in your Stripe Connect platform settings",
+                placeholder: 'ca_000000000000000'
+            }) }}
+
+            <hr/>
+            <h3>Redirect Urls</h3>
+
+            <p>As part of the Connect flow you must define the redirect url for the application on the Stripe dashboard
+                settings.</p>
+
+            <p><em>You can specify multiple redirect urls in the Stripe settings by separating multiple urls with a
+                    comma (,). <br/>Be sure to include all the urls for the various environment domains this will be
+                    running on.</em></p>
+
+            <p><em>Production redirect urls must be HTTPS only.</em></p>
+
+
+            {{ forms.textField({
+                name: 'webhookUrl',
+                readonly: true,
+                value: callbackUrl,
+                label: 'Redirect Url',
+                instructions: 'Use the same endpoint for both production and development callbacks.'
+            }) }}
+
+            <hr/>
+
+        </div>
+
+        <div class="buttons">
+            <input type="submit" class="btn submit" value="Update Connect Settings"/>
+        </div>
+
+    </form>
+
+{% endblock %}

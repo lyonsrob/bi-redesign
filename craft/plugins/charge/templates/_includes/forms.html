@@ -1,0 +1,19 @@
+
+
+
+
+{% macro modeswitch(config) %}
+    {% include "charge/_includes/forms/modeswitch" with config only %}
+{% endmacro %}
+
+{# Fields #}
+{% macro field(config, input) %}
+    {% include "_includes/forms/field" with config|merge({ input: input }) only %}
+{% endmacro %}
+
+
+{% macro modeswitchField(config) %}
+    {{ _self.field(config, _self.modeswitch(config)) }}
+{% endmacro %}
+
+

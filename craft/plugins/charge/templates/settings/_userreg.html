@@ -1,0 +1,71 @@
+{% extends "charge/_layouts/settings" %}
+
+{% block content %}
+    <h1>Guest Registration</h1>
+    {% if isPro %}
+        <form method="post" accept-charset="UTF-8" data-saveshortcut>
+            {{ getCsrfInput() }}
+            {{ forms.hidden({ name: 'action', value: 'charge/settings/saveUserReg' }) }}
+            {{ forms.hidden({ name: 'pluginClass', value: 'Charge' }) }}
+            {{ forms.hidden({ name: 'redirect', value: 'charge/settings/userreg' }) }}
+
+            {{ forms.lightswitchField({
+                first: true,
+                label: "Guest Registration Enabled"|t,
+                id: 'enabled',
+                name: 'userreg[enabled]',
+                instructions: "Is User Registration enabled for this site? Enabling will allow guests to create accounts directly as part of the payment flow."|t,
+                on: (userreg.enabled is defined ? userreg.enabled ),
+                autofocus: true,
+                toggle: 'userregoptions',
+                readonly: not settingsEditable,
+                warning: (not settingsEditable ? 'Set in your config as \'userreg > enabled\'' )
+            }) }}
+
+            <div class="dependant {%- if (userreg.enabled is not defined) or (not userreg.enabled) %} hidden{% endif %}"
+                 id="userregoptions">
+
+                <hr/>
+                <h3>Registration Behaviour</h3>
+                <p>Guest registration can take a few modes :</p>
+                <ul>
+                    <li><strong>Always</strong> - creates an account for all guest payments</li>
+                    <li><strong>Yes, by default</strong> - creates an account for guest payments, unless <code>createAccount == 'no'</code> is passed in the form</li>
+                    <li><strong>No, by default</strong> - does not create an account for guest payments, unless <code>createAccount == 'yes'</code> is passed in the form</li>
+                </ul>
+                {{ forms.selectField({
+                    label: "Default Behaviour"|t,
+                    id: 'defaultBehaviour',
+                    name: 'userreg[defaultBehaviour]',
+                    instructions: ""|t,
+                    value: (userreg.defaultBehaviour is defined ? userreg.defaultBehaviour ),
+                    options: { 'always' : 'Always', 'yes' : 'Yes, by default', 'no' : 'No, by default' },
+                    placeholder: 'ca_000000000000000'
+                }) }}
+
+                <hr/>
+
+                {{ forms.selectField({
+                    label: "End of Life Behaviour"|t,
+                    id: 'endOfLifeBehaviour',
+                    name: 'userreg[endOfLifeBehaviour]',
+                    instructions: "What happens to the user account when a charge fails or ends? This only affects users registered direct on the Charge forms"|t,
+                    value: (userreg.endOfLifeBehaviour is defined ? userreg.endOfLifeBehaviour ),
+                    options: { 'ignore' : 'Do Nothing', 'suspend' : 'Suspend Account', 'delete' : 'Delete Account'},
+                }) }}
+
+                <hr/>
+
+            </div>
+
+            <div class="buttons">
+                <input type="submit" class="btn submit" value="Update Guest Registration Settings"/>
+            </div>
+
+        </form>
+    {% else %}
+        {% include 'charge/_includes/upgradePrompt' %}
+    {% endif %}
+{% endblock %}
+
+

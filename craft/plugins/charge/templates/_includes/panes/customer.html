@@ -1,0 +1,29 @@
+{% if customer %}
+<div class="pane">
+    <h2>Customer</h2>
+    <table class="fullwidth data">
+        <thead>
+        <tr>
+            <th scope="col">Email</th>
+            <th scope="col">Name</th>
+            <th scope="col">Mode</th>
+            <th scope="col">Date</th>
+            <th scope="col">User</th>
+            <th scope="col">Stripe ID</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><a href="mailto:{{ customer.email }}">{{ customer.email }}</a></td>
+            <td>{{ customer.name | ucfirst }}</td>
+            <td><span class="modeLabel {{ customer.mode }}">{{ customer.mode }}</span></td>
+            <td><strong>{{ customer.dateCreated }}</strong></td>
+            <td>{% if customer.userId %}<strong>{{ customer.userId }}</strong>{% else %}<em>(guest)</em>{% endif %}</td>
+            <td><a target="_blank" class="go"
+                   href="{{ customer.stripeLink }}">{{ customer.stripeId }}</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+{% endif %}

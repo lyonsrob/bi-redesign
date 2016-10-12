@@ -1,0 +1,65 @@
+{% extends "charge/_layout" %}
+
+{% block content %}
+    <h2>Triggered Actions</h2>
+    <p>As well as taking payments, actions can be triggered from successful payments.</p>
+    <p>This works exactly as the other payment forms, but with the details of the triggered actions as a new paramter on
+        the options array.</p>
+
+    <hr/>
+
+    {#
+        You'll see this form uses a number of includes and macros to function.
+        This is primarly so our demos are all consistent and easily portable.
+        Your own templates don't need to break things down as abstract if you don't want
+     #}
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form class="form-horizontal" id="charge-form" method="post" action="" accept-charset="UTF-8">
+                {{ getCsrfInput() }}
+                {{ forms.hidden({ name : 'action', value: 'charge/charge' }) }}
+                {% set options = {
+                    'planAmount' : 99.99,
+                    'planInterval' : 'week',
+                    'planIntervalCount' : '1',
+                    'actions' : {
+                        'onSuccess': {
+                            'email' : { 0: 'test-email', 1: 'admin-notify' },
+                        },
+                        'onRecurring': {
+                            'email' : { 0: 'test-email', 1: 'admin-notify' },
+                        },
+                        'onFailure': {
+                            'email' : { 0: 'payment-failed', 1: 'admin-notify-failure' },
+                        },
+                    }} %}
+
+                {{ craft.charge.setPaymentOptions(options) }}
+
+                {% if allErrors is defined %}
+                    {{ forms.errorBlock(allErrors) }}
+                {% endif %}
+
+                <div id="payment-errors" class="alert alert-error"></div>
+
+
+                <h4>Customer Details</h4>
+                {% include 'charge/_includes/inputs/customerDetails' %}
+
+                <h4>Plan Details</h4>
+                {{ stripe.amountField({
+                    label: 'Amount',
+                    value: options.planAmount,
+                    readonly: true
+                }) }}
+
+                <h4>Card Details</h4>
+                {% include 'charge/_includes/inputs/cardDetails' %}
+                {% include 'charge/_includes/inputs/paymentButton' %}
+
+            </form>
+
+        </div>
+    </div>
+{% endblock %}

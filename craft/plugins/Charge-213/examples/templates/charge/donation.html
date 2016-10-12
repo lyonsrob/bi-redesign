@@ -1,0 +1,85 @@
+{% extends "charge/_layout" %}
+
+{% block content %}
+    <h2>Donation Form</h2>
+    <p>This payment form is very similar to the <a href="{{ url('charge/basic') }}">Basic Payment</a>, but instead of setting a planAmount directly, we're allowing dynamic values. </p>
+    <p>This let's the visitors pick their own plan amounts and intervals. When allowing dynamic values, you can just allow the plan amount at a minimum, but that can extend to recurring periods and currencies too.</p>
+
+    <hr/>
+    {#
+        You'll see this form uses a number of includes and macros to function.
+        This is primarly so our demos are all consistent and easily portable.
+        Your own templates don't need to break things down as abstract if you don't want
+     #}
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form class="form-horizontal"
+                  id="charge-form"
+                  method="post"
+                  action=""
+                  accept-charset="UTF-8"
+                  data-publicKey="{{ craft.charge.getPublicKey }}">
+                {{ forms.hidden({ name : 'action', value: 'charge/charge' }) }}
+                {{ getCsrfInput() }}
+
+                {% set options = { 'allowDynamic' : true } %}
+                {{ craft.charge.setPaymentOptions(options) }}
+
+                {% if allErrors is defined %}
+                    {{ forms.errorBlock(allErrors) }}
+                {% endif %}
+
+                <div id="payment-errors" class="alert alert-error"></div>
+
+                <h4>Customer Details</h4>
+                {% include 'charge/_includes/inputs/customerDetails' %}
+
+                <h4>Plan Details</h4>
+                {{ stripe.amountField({
+                    label: 'Amount',
+                    name: 'planAmount',
+                    id: 'planAmount',
+                    placeholder: 'eg. 49.99',
+                    value: (charge is defined ? charge.planAmount ),
+                    errors: (charge is defined ? charge.getErrors('planAmount'))
+                }) }}
+
+                {{ forms.radioGroupField({
+                    label: 'Plan Interval',
+                    name: 'planInterval',
+                    id: 'planInterval',
+                    options: {
+                        '' : 'One-Off',
+                        'day' : 'Daily',
+                        'week' : 'Weekly',
+                        'month' : 'Monthly',
+                        'year' : 'Yearly'
+                    },
+                    value: (charge is defined ? charge.planInterval),
+                    errors: (charge is defined ? charge.getErrors('planInterval'))
+                }) }}
+
+                {{ forms.radioGroupField({
+                    label: 'Plan Interval Count',
+                    name: 'planIntervalCount',
+                    id: 'planIntervalCount',
+                    options: {
+                        '0' : 'Not recurring',
+                        '1' : 'Every Period',
+                        '3' : 'Every 3 Periods',
+                        '12' : 'Every 12 Periods'
+                    },
+                    value: (charge is defined ? charge.planIntervalCount),
+                    errors: (charge is defined ? charge.getErrors('planIntervalCount'))
+                }) }}
+
+
+                <h4>Card Details</h4>
+                {% include 'charge/_includes/inputs/cardDetails' %}
+                {% include 'charge/_includes/inputs/paymentButton' %}
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

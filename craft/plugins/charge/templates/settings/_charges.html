@@ -1,0 +1,50 @@
+{% extends "charge/_layouts/settings" %}
+{% set selectedTab = 'settings' %}
+{% set title = "Settings"|t %}
+
+
+{% block content %}
+    <h1>Charge Element Setup</h1>
+
+    <form method="post" accept-charset="UTF-8" data-saveshortcut>
+        {{ getCsrfInput() }}
+        {{ forms.hidden({ name: 'action', value: 'charge/settings/saveChargeSettings' }) }}
+        {{ forms.hidden({ name: 'pluginClass', value: 'Charge' }) }}
+        {{ forms.hidden({ name: 'redirect', value: 'charge/settings' }) }}
+
+        {{ forms.textField({
+            label: 'Charge URL Format',
+            required: true,
+            instructions: 'What the entry URLs should look like. You can include tags that output charge properties, such as {hash} and {type}.',
+            id: 'urlFormat',
+            class: 'code',
+            name: 'charges[urlFormat]',
+            value: (charges.urlFormat is defined ? charges.urlFormat ),
+            errors: (errors is defined ? errors.urlFormat),
+            readonly: not settingsEditable,
+            warning: (not settingsEditable ? 'Set in your config as \'charges > urlFormat\'' )
+        }) }}
+
+
+        {{ forms.textField({
+            label: "Charge Template"|t,
+            required: true,
+            instructions: "The template to use when the charge’s URL is requested."|t,
+            id: 'template',
+            name: 'charges[template]',
+            value: (charges.template is defined ? charges.template ),
+            errors: (errors is defined ? errors.template),
+            readonly: not settingsEditable,
+            warning: (not settingsEditable ? 'Set in your config as \'charges > template\'' )
+        }) }}
+
+
+        <div class="buttons">
+            <input type="submit" class="btn submit" value="Update Settings"/>
+        </div>
+
+    </form>
+
+
+{% endblock %}
+

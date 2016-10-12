@@ -1,0 +1,68 @@
+{% extends "charge/_layout" %}
+
+{% block content %}
+    <h2>Subscriptions</h2>
+    <p>In addition to other triggers after payments, we can add users to membership subscriptions.</p>
+    <p>Subscriptions are defined within the Charge > Settings > Subscriptions area, and have various settings to control a user's member group, and various emails.</p>
+    <p>When a user joins a subscription they're added to a specific member group for the duration their payment is active. When their payment ends (or fails) they're automatically removed from that member group.</p>
+    <p>This works exactly as the other payment forms, but with the details of the subscription added as a new paramter on
+        the options array.</p>
+
+    <hr/>
+
+    {#
+        You'll see this form uses a number of includes and macros to function.
+        This is primarly so our demos are all consistent and easily portable.
+        Your own templates don't need to break things down as abstract if you don't want
+     #}
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form class="form-horizontal"
+                  id="charge-form"
+                  method="post"
+                  action=""
+                  accept-charset="UTF-8"
+                  data-publicKey="{{ craft.charge.getPublicKey }}">
+                {{ forms.hidden({ name : 'action', value: 'charge/charge' }) }}
+                {{ getCsrfInput() }}
+
+                {% set options = {
+                    'planAmount' : 5.99,
+                    'planInterval' : 'month',
+                    'planIntervalCount' : '1',
+                    'actions' : {
+                        'onSuccess': {
+                            'subscription' : 'gold-membership'
+                        },
+                    }}
+                %}
+
+                {{ craft.charge.setPaymentOptions(options) }}
+
+                {% if allErrors is defined %}
+                    {{ forms.errorBlock(allErrors) }}
+                {% endif %}
+
+                <div id="payment-errors" class="alert alert-error"></div>
+
+
+                <h4>Customer Details</h4>
+                {% include 'charge/_includes/inputs/customerDetails' %}
+
+                <h4>Plan Details</h4>
+                {{ stripe.amountField({
+                    label: 'Amount',
+                    value: options.planAmount,
+                    readonly: true
+                }) }}
+
+                <h4>Card Details</h4>
+                {% include 'charge/_includes/inputs/cardDetails' %}
+                {% include 'charge/_includes/inputs/paymentButton' %}
+
+            </form>
+
+        </div>
+    </div>
+{% endblock %}

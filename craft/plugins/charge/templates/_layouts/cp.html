@@ -1,0 +1,6 @@
+{% extends "_layouts/cp" %}
+{% hook 'charge.prepCpTemplate' %}
+{% import "_includes/forms" as forms %}
+{% import "charge/_includes/forms" as chargeForms %}
+
+{% set title = (title is defined ? title| t : "Charges"|t) %}

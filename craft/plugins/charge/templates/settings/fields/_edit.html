@@ -1,0 +1,31 @@
+{% extends "charge/_layouts/settings" %}
+
+
+{% block content %}
+
+    {% if isPro %}
+    <form method="post" accept-charset="UTF-8" data-saveshortcut="1">
+        {{ getCsrfInput() }}
+        {{ forms.hidden({ name: 'action', value: 'charge/settings/saveLayout' }) }}
+        {{ forms.hidden({ name: 'redirect', value: 'charge/settings' }) }}
+
+        <div id="template-fieldLayout">
+            {% include "_includes/fieldlayoutdesigner" with {
+            fieldLayout: item.getFieldLayout(),
+            } only %}
+        </div>
+
+        <hr>
+
+        <div class="buttons">
+            <input type="submit" class="btn submit" value="{{ 'Save'|t }}">
+        </div>
+    </form>
+    {% else %}
+        <h1>Fields</h1>
+        {% include 'charge/_includes/upgradePrompt' %}
+    {% endif %}
+
+{% endblock %}
+
+

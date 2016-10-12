@@ -1,0 +1,86 @@
+{% extends "charge/_layout" %}
+
+{% block content %}
+    <h2>Meta Data</h2>
+    <p>In addition to Craft fields, you can pass any additional data via meta fields as part of the request. Additionally, a free form <code>description</code> field is available.</code></p>
+    <p>Meta data support can be useful if you just need to pass some specific <em>simple</em> attributes on a purchase. The same goes for descriptions. Meta data and descriptions are passed direct to Stripe, and stored locally, but can't be searched or filtered easily within the Craft side. It's most useful if you want to include an internal marker for later data exports.</p>
+    <p>To add a description to a charge, just pass an input with a name <code>description</code>. To include meta data, pass fields called <code>meta[..]</code></p>
+    <hr/>
+
+    {#
+        You'll see this form uses a number of includes and macros to function.
+        This is primarly so our demos are all consistent and easily portable.
+        Your own templates don't need to break things down as abstract if you don't want
+     #}
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form class="form-horizontal"
+                  id="charge-form"
+                  method="post"
+                  action=""
+                  accept-charset="UTF-8"
+                  data-publicKey="{{ craft.charge.getPublicKey }}">
+                {{ forms.hidden({ name : 'action', value: 'charge/charge' }) }}
+                {{ getCsrfInput() }}
+
+                {% set options = {
+                'planAmount' : 99.99
+                } %}
+                {{ craft.charge.setPaymentOptions(options) }}
+
+
+                {% if allErrors is defined %}
+                    {{ forms.errorBlock(allErrors) }}
+                {% endif %}
+
+                <div id="payment-errors" class="alert alert-error"></div>
+
+                <h4>Customer Details</h4>
+                {% include 'charge/_includes/inputs/customerDetails' %}
+
+                <h4>Meta Data Fields</h4>
+                {{ forms.textField({
+                    name: 'meta[one]',
+                    id: 'fields-body',
+                    label: 'MetaData One',
+                    value: (charge is defined ? charge.meta.one)
+                }) }}
+                {{ forms.textField({
+                    name: 'meta[two]',
+                    id: 'fields-two',
+                    label: 'MetaData Two',
+                    value: (charge is defined ? charge.meta.two)
+                }) }}
+                {{ forms.textField({
+                    name: 'meta[three]',
+                    id: 'fields-three',
+                    label: 'MetaData Three',
+                    value: (charge is defined ? charge.meta.three)
+                }) }}
+                <h4>Description Field</h4>
+                {{ forms.textField({
+                    name: 'description',
+                    id: 'fields-description',
+                    label: 'Description',
+                    value: (charge is defined ? charge.description)
+                }) }}
+
+                <h4>Plan Details</h4>
+                {{ stripe.amountField({
+                    label: 'Amount',
+                    value: options.planAmount,
+                    readonly: true
+                }) }}
+
+                <h4>Card Details</h4>
+                {% include 'charge/_includes/inputs/cardDetails' %}
+
+
+                {% include 'charge/_includes/inputs/paymentButton' %}
+
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

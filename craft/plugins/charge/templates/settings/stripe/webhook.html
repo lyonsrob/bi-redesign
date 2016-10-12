@@ -1,0 +1,52 @@
+{% extends "charge/_layouts/settings" %}
+{% set selectedTab = 'settings' %}
+{% set title = "Settings"|t %}
+
+{% block content %}
+
+
+    <h1>Stripe Webhooks</h1>
+    <p>Webhook callbacks are sent from Stripe after various events.</p>
+    <p>For full functionality with Charge, you'll need to add the webhook url below to your Stripe account, in your Stripe Dashboard > Account Settings > Webhooks.</p>
+
+
+    {{ forms.textField({
+        name: 'webhookUrl',
+        readonly: true,
+        value: url,
+        label: 'Webhook Endpoint',
+        instructions: 'Use the same endpoint for both live and test modes. We pick up the mode as part of the callback data'
+    }) }}
+
+    <hr/>
+
+    <h2>Callback State</h2>
+
+    {% if callback %}
+        {% if callback.dateCreated|date("U") > "-1 days"|date("U") %}
+            <p><span class="status green"></span><span class="title">Webhooks Received</span></p>
+        {% else %}
+            <p><span class="status yellow"></span><span class="title">Webhooks Received, but more than 24hrs ago</span></p>
+        {% endif %}
+    {% else %}
+        <p><span class="status red"></span><span class="title">No Webhooks Received</span></p>
+        <p><em>We have no records of received webhook callbacks.</em></p>
+
+        <h4>Things to Check</h4>
+        <ol>
+            <li>You've added the webhook url to your account</li>
+            <li>You've run a test transaction</li>
+            <li>You've triggered a test webhook callback</li>
+            <li>This site url is publicly accessible</li>
+        </ol>
+    {% endif %}
+
+    <p>Running Locally? You can use <a href="http://www.ultrahook.com" target="_blank">ultrahook.com</a> to receive webhooks.</p>
+    <p><a href="https://squarebit.co.uk/software/craft/charge/docs/webhooks" target="_blank" class="btn">Check out the Webhook FAQ</a></p>
+
+    <hr/>
+
+    <a href="{{ url('charge/settings/stripe') }}">&larr; Back to Stripe Settings</a>
+
+
+{% endblock %}

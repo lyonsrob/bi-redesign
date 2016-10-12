@@ -1,0 +1,48 @@
+
+<div class="pane">
+    <h2>Recurring Plan</h2>
+
+    <table class="data fullwidth">
+        <thead>
+        <tr>
+            <th scope="col">Value</th>
+            <th scope="col">State</th>
+            <th scope="col">Stripe ID</th>
+            <th scope="col">Period</th>
+            <th scope="col">Started</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="subscription-status-{{ subscription.status }}">
+            <td><strong>{{ subscription.formatPlanNameShort }}</strong></td>
+            <td>
+                <span class="statusLabel {{ subscription.status }}">
+                    <span class="status {{ subscription.getColorLabel }}"></span> <span class="label">{{ subscription.status | ucfirst }}</span></td>
+            <td><a href="{{ subscription.stripeLink }}" target="_blank"><span class="go nowrap">{{ subscription.stripeId }}</span></a></td>
+            <td>{{ subscription.currentPeriodStart | date }} <em>&rarr;</em> {{ subscription.currentPeriodEnd | date}}</td>
+            <td>{{ subscription.start | date }}</td>
+            <td>
+                {% if subscription.status == 'active' %}
+
+                <form class="charge-refund-action" method="post" accept-charset="UTF-8">
+                    <input type="hidden" name="action" value="">
+                    <input type="hidden" name="redirect" value="">
+                    {{ getCsrfInput() }}
+                    <div class="btngroup">
+                        <input type="button" class="btn small formsubmit"
+                               value="{{ 'End Subscription'|t }}"
+                               data-action="charge/charges/endSubscription"
+                               data-confirm="{{ 'Are you sure you want to end this recurring payment subscription?'|t }}"
+                               data-redirect="charge/detail/{{ subscription.chargeId }}"
+                               data-param="subscriptionId"
+                               data-value="{{ subscription.id }}">
+                    </div>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>

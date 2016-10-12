@@ -1,0 +1,18 @@
+{%- set class = [
+'text',
+'cc-number',
+'form-control',
+(class is defined and class ? class : null),
+(disabled is defined and disabled ? 'disabled' : null),
+(size is defined and size ? null : 'fullwidth')
+]|filter|join(' ') %}
+
+<input class="{{ class }}" type="text"
+        {%- if id is defined %} id="{{ id }}"{% endif %}
+        {%- if size is defined %} size="{{ size }}"{% endif %}
+        {%- if maxlength is defined and maxlength %} maxlength="{{ maxlength }}"{% endif %}
+        {%- if placeholder is defined %} placeholder="{{ placeholder }}"{% endif %}
+        {%- if value is defined %} value="{{ value }}"{% endif %}
+       autocomplete="off"
+       data-stripe="number">
+

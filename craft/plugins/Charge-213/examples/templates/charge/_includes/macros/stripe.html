@@ -1,0 +1,75 @@
+{# Inputs #}
+{% macro hidden(config) -%}
+    {% include "charge/_includes/macros/stripe/hidden" with config only %}
+{%- endmacro %}
+
+{% macro card(config) %}
+    {% include "charge/_includes/macros/stripe/card" with config only %}
+{% endmacro %}
+
+{% macro select(config) %}
+    {% include "charge/_includes/macros/stripe/select" with config only %}
+{% endmacro %}
+
+{% macro text(config) %}
+    {% include "charge/_includes/macros/stripe/text" with config only %}
+{% endmacro %}
+
+{% macro expiry(config) %}
+    {% include "charge/_includes/macros/stripe/expiryMonth" with config only %}
+{% endmacro %}
+{% macro expiryYear(config) %}
+    {% include "charge/_includes/macros/stripe/expiryYear" with config only %}
+{% endmacro %}
+
+
+{# Wrapped Fields #}
+
+{% macro field(config, input) %}
+    {% include "charge/_includes/macros/stripe/field" with config|merge({ input: input }) only %}
+{% endmacro %}
+
+{% macro cardField(config) %}
+    {% set config = config|merge({ 'fieldWidth': 'col-sm-6', 'placeholder' : '•••• •••• •••• ••••' }) %}
+
+    {% if craft.charge.getMode == 'test' and craft.config.devMode %}
+        {% set config = config|merge({ 'value': '4242 4242 4242 4242', 'instructions' : 'We\'ve hardcoded valid test card details while in test mode + with devMode enabled.'}) %}
+    {% endif %}
+
+    {{ _self.field(config, _self.card(config)) }}
+{% endmacro %}
+
+{% macro cvcField(config) %}
+    {% set config = config|merge({ 'fieldWidth': 'col-sm-3', 'data' : { 'stripe' : 'cvc'} }) %}
+
+    {% if craft.charge.getMode == 'test' and craft.config.devMode %}
+        {% set config = config|merge({ 'value': '123' }) %}
+    {% endif %}
+
+    {{ _self.field(config, _self.text(config)) }}
+{% endmacro %}
+
+{% macro textField(config) %}
+    {{ _self.field(config, _self.text(config)) }}
+{% endmacro %}
+
+{% macro amountField(config) %}
+    {% set config = config|merge({ 'type' : 'amount' }) %}
+    {{ _self.field(config, _self.text(config)) }}
+{% endmacro %}
+
+{% macro expiryField(config) %}
+    {% set config = config|merge({ 'fieldWidth': 'col-sm-3', 'data' : { 'stripe' : 'exp'} }) %}
+    {% set configMonth = { name: 'cardExpMonth', data: { stripe : 'exp_month' }} %}
+    {% set configYear = { name: 'cardExpYear', data: { stripe : 'exp_year' }} %}
+
+    {% if craft.charge.getMode == 'test' and craft.config.devMode %}
+        {% set config = config|merge({ 'value': '12 / 34' }) %}
+        {% set configMonth = configMonth|merge({ 'value': '12' }) %}
+        {% set configYear = configYear|merge({ 'value': '34' }) %}
+    {% endif %}
+
+    {{ _self.field(config, _self.text(config)) }}
+    {{ _self.hidden(configMonth) }}
+    {{ _self.hidden(configYear) }}
+{% endmacro %}

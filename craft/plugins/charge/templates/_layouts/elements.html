@@ -1,0 +1,13 @@
+{% extends "_layouts/elementindex" %}
+{% hook 'charge.prepCpTemplate' %}
+{% import "_includes/forms" as forms %}
+{% import "charge/_includes/forms" as chargeForms %}
+
+
+{% set title %}
+    Charges
+{% endset %}
+
+{% block sidebar %}
+    {{ parent() }}
+{% endblock %}

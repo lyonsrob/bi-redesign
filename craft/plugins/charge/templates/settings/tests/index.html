@@ -1,0 +1,26 @@
+{% extends "charge/_layouts/settings" %}
+{% set selectedTab = 'settings' %}
+{% set title = "Settings"|t %}
+
+
+{% block content %}
+    <h1>Testing</h1>
+
+    <p>These testing functions are designed for developers to quickly debug issues. <br/>They can trigger events and conditions that normally require more complex external setup.</p>
+    <p><em>They are not designed for general usage. Use with caution.</em></p>
+
+    <hr/>
+
+    <h2>Test Recurring Triggers</h2>
+    <p>The <code>onRecurring</code> action is triggered against the <code>invoice.payment_succeeded</code> webhook event.</p>
+    <p>This test creates a new charge with a recurring action, then triggers the recurring payment event.</p>
+
+    <form method="post">
+        {{ forms.hidden({ name: 'action', value: 'charge/tests/runTest' }) }}
+        {{ forms.hidden({ name: 'type', value: 'recurringTrigger' }) }}
+        <input type="submit" value="Run Test" class="btn submit"/>
+    </form>
+
+
+
+{% endblock %}

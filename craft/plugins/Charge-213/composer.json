@@ -1,0 +1,23 @@
+{
+  "name": "joelbradbury/charge",
+  "description": "Stripe Payments plugin for Craft CMS",
+  "authors": [
+    {
+      "name": "Joel Bradbury",
+      "email": "joel@squarebit.co.uk"
+    }
+  ],
+  "type": "craft-plugin",
+  "require": {
+    "cartalyst/stripe": "~2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Charge\\": "charge/Charge/"
+    }
+  },
+  "config": {
+    "vendor-dir": "charge/vendor"
+  }
+}
+

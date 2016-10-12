@@ -1,0 +1,29 @@
+{% extends 'charge/_layout' %}
+
+{% block content %}
+
+
+    <h3>Charge</h3>
+    <h4>Stripe payments for Craft</h4>
+
+
+    <p>These are the Charge example templates.</p>
+    <p>Just getting started? <a href="{{ url('charge/basic') }}">Check out the basic payment form to get started!</a></p>
+
+    <p>Also, be sure to check out the <a href="http://squarebit.co.uk/software/craft/charge/docs/quickstart">Quickstart Guide</a>.</p>
+
+    <p><a href="{{ url('charge/basic') }}" class="btn btn-primary">Basic Payment Form &rarr;</a></p>
+
+    <hr/>
+    <p>Additional Resources:
+    <ul>
+        <li><a href="http://squarebit.co.uk/software/craft/charge">Charge Documentation</a>.</li>
+        <li><a href="https://support.stripe.com">Stripe Support Site</a></li>
+        <li><a href="https://buildwithcraft.com/docs/introduction">Craft CMS Documentation</a>.</li>
+        <li><a href="http://craftcms.stackexchange.com">Craft CMS Stack Exchange</a>. Use the <code>charge-plugin</code>
+            tag.
+        </li>
+        <li><a href="mailto:support@squarebit.co.uk">Email SquareBit Support</a> if you run into issues</li>
+    </ul>
+
+{% endblock %}
